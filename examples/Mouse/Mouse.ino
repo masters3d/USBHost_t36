@@ -3,6 +3,8 @@
 // This example is in the public domain
 
 #include "USBHost_t36.h"
+#include "Mouse.h" //https://github.com/arduino-libraries/Mouse
+
 
 USBHost myusb;
 USBHub hub1(myusb);
@@ -141,14 +143,22 @@ void loop()
 
 
   if (mouse1.available()) {
+    int xValue = mouse1.getMouseX();
+    int yValue = mouse1.getMouseY();
+    int wValue = mouse1.getWheel();
+
+
+    Mouse.move(xValue, yValue, wValue);
+
+    
     Serial.print("Mouse: buttons = ");
     Serial.print(mouse1.getButtons());
     Serial.print(",  mouseX = ");
-    Serial.print(mouse1.getMouseX());
+    Serial.print(xValue);
     Serial.print(",  mouseY = ");
-    Serial.print(mouse1.getMouseY());
+    Serial.print(yValue);
     Serial.print(",  wheel = ");
-    Serial.print(mouse1.getWheel());
+    Serial.print(wValue);
     Serial.print(",  wheelH = ");
     Serial.print(mouse1.getWheelH());
     Serial.println();
