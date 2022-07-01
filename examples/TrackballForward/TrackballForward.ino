@@ -38,6 +38,18 @@ uint8_t joystick_left_trigger_value = 0;
 uint8_t joystick_right_trigger_value = 0;
 uint64_t joystick_full_notify_mask = (uint64_t) - 1;
 
+
+int ADJUST_SCROLL(int input) {
+  int upperLimit = 1;
+  int inputAbs = abs(input);
+  bool isInputPositive = input >= 0;
+  int value = 3 * input / 10;
+  // negative zero anybody?
+  bool checkForZero = (value < 1 && value > -1) || value == 0;
+  return -1 * (checkForZero ? input : inputAbs > upperLimit ? (isInputPositive ? upperLimit : -upperLimit) : value  );
+}
+# define  ADJUST_SPEED(input) (15 * input / 10 )
+
 bool isPressed(uint8_t usb_mouse_buttons_state, uint8_t b) {
   return ((usb_mouse_buttons_state & (b & MOUSE_ALL)) != 0);
 }
@@ -152,12 +164,16 @@ void loop()
 
     if (isPressed(mouseButtons, MOUSE_RIGHT)) {
       // We are going to scrow with the ball
-      Mouse.move(hValue, wValue, yValue, xValue );
+      wValue = ADJUST_SCROLL(yValue);
+      hValue = ADJUST_SCROLL(xValue);
+      Mouse.move(0, 0, wValue , hValue );
     } else {
       // regular movement
+      xValue = ADJUST_SPEED(xValue);
+      yValue = ADJUST_SPEED(yValue);
+
       Mouse.move(xValue, yValue, wValue, hValue );
     }
-
     
     Serial.print("Mouse: buttons = ");
     Serial.print(mouseButtons);
